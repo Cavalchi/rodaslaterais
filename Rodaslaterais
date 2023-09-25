@@ -1,0 +1,56 @@
+//salve! esse código serve tanto para a interação com o meu outro repósitorio do CarWheel como de forma independente, ele serve para movimentar o seu objeto ou uma roda como propriamente dito
+// de forma que o DESLIZANTE que ele esteja associado se mova, sim um deslizante, eu limitei a rotação claro para um angulo de 30 graus, porém dito no eieox Y, só falei angulos por formalidade
+// caso tenha dúvida sinta-se livre para me chamar no linkedin
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Rodaslaterais : MonoBehaviour
+{
+    public Transform arObject;
+    public Rotação sidebutton;
+    public float minRotationAngle = 55f;
+    public float maxRotationAngle = 125f;
+    public float rotationSpeed = 10f;
+    public bool rotateWheels = true;
+    public MovButtonScript movButtonScript;
+
+    void Update()
+    {
+        if (rotateWheels)
+        {
+            float targetRotationY;
+            float rotationSpeed;
+
+            if (sidebutton.isDragging || Mathf.Abs(sidebutton.slider.value - 0.5f) > 0.01f)
+            {
+                float sliderValue = sidebutton.slider.value;
+
+                if (sidebutton.shouldInvertRotation)
+                {
+                    sliderValue = 1 - sliderValue; // Invert the slider value
+                }
+                if (sliderValue >= 0 && sliderValue <= 0.49)
+                {
+                    targetRotationY = Mathf.Lerp(90f, 125f, (0.49f - sliderValue) / 0.4f);
+                }
+                else if (sliderValue > 0.51 && sliderValue <= 1)
+                {
+                    targetRotationY = Mathf.Lerp(90f, 55f, (sliderValue - 0.51f) / 0.4f);
+                }
+                else
+                {
+                    targetRotationY = arObject.transform.localEulerAngles.y;
+                }
+                rotationSpeed = Mathf.Abs(sliderValue - 0.51f) * maxRotationAngle * 5f;
+            }
+            else
+            {
+                targetRotationY = 90f;
+                rotationSpeed = maxRotationAngle * 1f;
+            }
+            Quaternion targetRotation = Quaternion.Euler(arObject.transform.localRotation.eulerAngles.x, targetRotationY, 0f);
+            arObject.transform.localRotation = Quaternion.Slerp(arObject.transform.localRotation, targetRotation, rotationSpeed * Time.deltaTime);
+        }
+    }
+}
